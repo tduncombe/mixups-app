@@ -25,7 +25,7 @@ export const CreateView = ({ onCreate }) => {
           <Trophy className="text-white w-8 h-8" />
         </div>
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">2v2 Mix Ups</h1>
-        <p className="text-gray-500 dark:text-gray-400">Casual tournament manager for Badminton & Pickleball</p>
+        <p className="text-gray-500 dark:text-gray-400">Casual tournament manager for 2v2 Games</p>
       </div>
 
       <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 space-y-4">
