@@ -59,9 +59,18 @@ export const CreateView = ({ onCreate }) => {
 
       <div className={cn(cardVariants(), 'space-y-4')}>
         <div>
-          <label className={cn(labelVariants({ withIcon: true }))}>
-            <Users className="w-4 h-4 mr-2" /> Players
-          </label>
+          <div className="flex items-center justify-between mb-2">
+            <label className={cn(labelVariants({ withIcon: true }))}>
+              <Users className="w-4 h-4 mr-2" /> Players
+            </label>
+            <button
+              type="button"
+              onClick={() => setPlayers([])}
+              className={buttonVariants({ variant: 'ghost', size: 'sm' })}
+            >
+              Clear All
+            </button>
+          </div>
           <div className={inputVariants({ variant: 'container' })}>
             {players.map(player => (
               <span key={player} className={badgeVariants()}>

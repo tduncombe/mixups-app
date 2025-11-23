@@ -45,6 +45,7 @@ export const buttonVariants = cva(
         config: 'px-3 py-2 rounded-lg text-sm border text-left transition-all',
         remove: 'hover:bg-indigo-200 dark:hover:bg-indigo-800 rounded-full p-0.5 transition-colors',
         modal: 'p-2 hover:bg-gray-200 dark:hover:bg-gray-800 rounded-full transition-colors',
+        ghost: 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors',
       },
       size: {
         xs: 'px-2 py-1 text-xs',
