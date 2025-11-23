@@ -131,10 +131,9 @@ export const PlayerModal = ({ player, matches, onClose }) => {
               <div className={cn(statLabelVariants({ variant: 'accent' }), 'flex justify-center items-center gap-1')}>
                 <Flame className="w-3 h-3" /> Cur. Streak
               </div>
-              <div className={cn(
-                statValueVariants(),
-                stats.streakType === 'W' ? 'text-orange-500' : 'text-gray-400'
-              )}>
+              <div className={statValueVariants({
+                variant: stats.streakType === 'W' ? 'accent' : 'neutral'
+              })}>
                 {stats.streak}
               </div>
             </div>

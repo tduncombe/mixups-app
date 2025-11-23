@@ -41,7 +41,7 @@ export const buttonVariants = cva(
       variant: {
         primary: 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-200 dark:shadow-none',
         secondary: 'bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200',
-        winner: 'border transition-colors',
+        winner: 'border transition-colors rounded-full',
         config: 'px-3 py-2 rounded-lg text-sm border text-left transition-all',
         remove: 'hover:bg-indigo-200 dark:hover:bg-indigo-800 rounded-full p-0.5 transition-colors',
         modal: 'p-2 hover:bg-gray-200 dark:hover:bg-gray-800 rounded-full transition-colors',
@@ -190,6 +190,7 @@ export const statValueVariants = cva(
   {
     variants: {
       size: {
+        xs: 'text-sm',
         sm: 'text-lg',
         md: 'text-xl',
         lg: 'text-2xl',

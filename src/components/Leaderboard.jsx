@@ -59,10 +59,10 @@ export const Leaderboard = ({ players, matches, config, onSelectPlayer }) => {
                 {s.name}
                 <Activity className="w-3 h-3 text-gray-400 dark:text-gray-500" />
               </td>
-              <td className={cn('px-4 py-3 text-center', statValueVariants({ variant: 'win', size: 'sm' }))}>
+              <td className={cn('px-4 py-3 text-center', statValueVariants({ variant: 'win', size: 'xs' }))}>
                 {s.wins}
               </td>
-              <td className={cn('px-4 py-3 text-center', statValueVariants({ variant: 'loss', size: 'sm' }))}>
+              <td className={cn('px-4 py-3 text-center', statValueVariants({ variant: 'loss', size: 'xs' }))}>
                 {s.losses}
               </td>
               <td className="px-4 py-3 text-center text-gray-500 dark:text-gray-400 hidden sm:table-cell">
