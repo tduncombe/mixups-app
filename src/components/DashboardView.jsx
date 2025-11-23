@@ -33,7 +33,10 @@ const ShareAnimation = ({ show }) => {
 
 export const DashboardView = ({ tournamentId, onBack, isRemoteMode }) => {
   const { tournament, matches, loading, error, isRemote } = useTournament(tournamentId, isRemoteMode);
-  const [activeTab, setActiveTab] = useState('matches');
+
+  // Read the initial tab from URL if present
+  const initialTab = new URLSearchParams(window.location.search).get('tab') || 'matches';
+  const [activeTab, setActiveTab] = useState(initialTab);
   const [selectedPlayer, setSelectedPlayer] = useState(null);
   const [showCopied, setShowCopied] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
@@ -56,6 +59,7 @@ export const DashboardView = ({ tournamentId, onBack, isRemoteMode }) => {
         // 2. Create the shareable link (append query param)
         const url = new URL(window.location.href);
         url.searchParams.set('t', tournamentId);
+        url.searchParams.set('tab', activeTab);
 
         // 3. Copy to clipboard
         await navigator.clipboard.writeText(url.toString());
@@ -73,7 +77,7 @@ export const DashboardView = ({ tournamentId, onBack, isRemoteMode }) => {
 
         // 5. Force a reload to switch to "Remote Mode" immediately for the user
         if (!isRemote) {
-            window.location.search = `?t=${tournamentId}`;
+            window.location.search = `?t=${tournamentId}&tab=${activeTab}`;
         }
     } catch (err) {
         alert("Failed to share: " + err.message);

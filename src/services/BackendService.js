@@ -35,17 +35,38 @@ export const BackendService = {
         .select('*')
         .eq('id', tournamentId)
         .single();
-        
+
       const { data: mData, error: mError } = await supabase
         .from('matches')
         .select('*')
         .eq('tournament_id', tournamentId);
 
       if (tData && mData && !tError && !mError) {
-        return { 
-          tournament: tData, 
-          matches: mData.sort((a, b) => a.order_index - b.order_index),
-          isRemote: true 
+        // Normalize the data structure from snake_case (DB) to camelCase (JS)
+        const tournament = {
+          id: tData.id,
+          createdAt: tData.created_at,
+          players: tData.players,
+          config: tData.config
+        };
+
+        const matches = mData
+          .map(m => ({
+            id: m.id,
+            tournamentId: m.tournament_id,
+            team1: m.team1,
+            team2: m.team2,
+            scores: m.scores || {},
+            winner: m.winner,
+            isComplete: m.is_complete || false,
+            orderIndex: m.order_index
+          }))
+          .sort((a, b) => a.orderIndex - b.orderIndex);
+
+        return {
+          tournament,
+          matches,
+          isRemote: true
         };
       }
     }
@@ -55,7 +76,7 @@ export const BackendService = {
     const db = BackendService.getLocalDB();
     const tournament = db.tournaments.find(t => t.id === tournamentId) || null;
     const matches = db.matches.filter(m => m.tournamentId === tournamentId).sort((a, b) => a.orderIndex - b.orderIndex);
-    
+
     return { tournament, matches, isRemote: false };
   },
 
