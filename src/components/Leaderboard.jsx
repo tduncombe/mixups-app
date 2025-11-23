@@ -1,5 +1,7 @@
 import React, { useMemo } from 'react';
 import { Activity } from 'lucide-react';
+import { cn } from '../lib/utils';
+import { cardVariants, statValueVariants, descriptionVariants } from '../lib/variants';
 
 export const Leaderboard = ({ players, matches, config, onSelectPlayer }) => {
   const stats = useMemo(() => {
@@ -30,7 +32,7 @@ export const Leaderboard = ({ players, matches, config, onSelectPlayer }) => {
   }, [players, matches, config]);
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+    <div className={cn(cardVariants({ padding: 'none' }), 'overflow-hidden')}>
       <table className="w-full text-sm text-left">
         <thead className="bg-gray-50 dark:bg-gray-900 text-gray-500 dark:text-gray-400 font-medium border-b dark:border-gray-700">
           <tr>
@@ -47,18 +49,34 @@ export const Leaderboard = ({ players, matches, config, onSelectPlayer }) => {
             <tr
               key={s.name}
               onClick={() => onSelectPlayer(s.name)}
-              className={`cursor-pointer hover:bg-indigo-100/40 dark:hover:bg-gray-700 transition-colors ${i < 3 ? 'bg-indigo-50/10 dark:bg-indigo-500/10' : ''}`}
+              className={cn(
+                'cursor-pointer hover:bg-indigo-100/40 dark:hover:bg-gray-700 transition-colors',
+                i < 3 && 'bg-indigo-50/10 dark:bg-indigo-500/10'
+              )}
             >
               <td className="px-4 py-3 font-mono text-gray-400 dark:text-gray-500">{i + 1}</td>
               <td className="px-4 py-3 font-medium text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                 {s.name}
-                 <Activity className="w-3 h-3 text-gray-400 dark:text-gray-500" />
+                {s.name}
+                <Activity className="w-3 h-3 text-gray-400 dark:text-gray-500" />
               </td>
-              <td className="px-4 py-3 text-center font-bold text-green-600 dark:text-green-400">{s.wins}</td>
-              <td className="px-4 py-3 text-center text-red-500 dark:text-red-400">{s.losses}</td>
-              <td className="px-4 py-3 text-center text-gray-500 dark:text-gray-400 hidden sm:table-cell">{s.played}</td>
+              <td className={cn('px-4 py-3 text-center', statValueVariants({ variant: 'win', size: 'sm' }))}>
+                {s.wins}
+              </td>
+              <td className={cn('px-4 py-3 text-center', statValueVariants({ variant: 'loss', size: 'sm' }))}>
+                {s.losses}
+              </td>
+              <td className="px-4 py-3 text-center text-gray-500 dark:text-gray-400 hidden sm:table-cell">
+                {s.played}
+              </td>
               {config.scoringMode === 'POINTS' && (
-                <td className={`px-4 py-3 text-center font-mono ${s.pointDiff > 0 ? 'text-green-600 dark:text-green-400' : s.pointDiff < 0 ? 'text-red-500 dark:text-red-400' : 'text-gray-400'}`}>
+                <td className={cn(
+                  'px-4 py-3 text-center font-mono',
+                  s.pointDiff > 0
+                    ? 'text-green-600 dark:text-green-400'
+                    : s.pointDiff < 0
+                    ? 'text-red-500 dark:text-red-400'
+                    : 'text-gray-400'
+                )}>
                   {s.pointDiff > 0 ? '+' : ''}{s.pointDiff}
                 </td>
               )}
@@ -66,8 +84,11 @@ export const Leaderboard = ({ players, matches, config, onSelectPlayer }) => {
           ))}
         </tbody>
       </table>
-      <div className="p-3 text-center text-xs text-gray-400 dark:text-gray-500 border-t dark:border-gray-700">
-         Tap a player to view detailed stats
+      <div className={cn(
+        descriptionVariants({ variant: 'muted' }),
+        'p-3 text-center border-t dark:border-gray-700'
+      )}>
+        Tap a player to view detailed stats
       </div>
     </div>
   );

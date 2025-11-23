@@ -1,5 +1,16 @@
 import React, { useMemo } from 'react';
 import { X, Flame, TrendingUp, Shield } from 'lucide-react';
+import { cn } from '../lib/utils';
+import {
+  modalOverlayVariants,
+  modalContentVariants,
+  buttonVariants,
+  statCardVariants,
+  statLabelVariants,
+  statValueVariants,
+  badgeVariants,
+  headingVariants
+} from '../lib/variants';
 
 export const PlayerModal = ({ player, matches, onClose }) => {
   if (!player) return null;
@@ -80,25 +91,30 @@ export const PlayerModal = ({ player, matches, onClose }) => {
   }, [player, matches]);
 
   if (!stats) return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/50 backdrop-blur-sm" onClick={onClose}>
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl max-w-sm w-full text-center">
-        <h3 className="font-bold text-lg mb-2 dark:text-white">{player}</h3>
+    <div className={modalOverlayVariants()} onClick={onClose}>
+      <div className={modalContentVariants()}>
+        <h3 className={cn(headingVariants({ size: 'sm' }), 'mb-2')}>{player}</h3>
         <p className="text-gray-500">No completed matches yet.</p>
       </div>
     </div>
   );
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/50 backdrop-blur-sm transition-all animate-in fade-in duration-200" onClick={onClose}>
-      <div className="bg-white dark:bg-gray-800 w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden border border-gray-200 dark:border-gray-700" onClick={e => e.stopPropagation()}>
-
+    <div
+      className={cn(modalOverlayVariants(), 'transition-all animate-in fade-in duration-200')}
+      onClick={onClose}
+    >
+      <div
+        className={cn(modalContentVariants({ variant: 'complex' }), 'w-full')}
+        onClick={e => e.stopPropagation()}
+      >
         {/* Header */}
         <div className="bg-gray-50 dark:bg-gray-900 p-4 flex justify-between items-center border-b dark:border-gray-700">
           <div>
-             <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{player}</h2>
-             <p className="text-xs text-gray-500 uppercase font-bold tracking-wider">Player Card</p>
+            <h2 className={headingVariants({ size: 'md' })}>{player}</h2>
+            <p className="text-xs text-gray-500 uppercase font-bold tracking-wider">Player Card</p>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-gray-200 dark:hover:bg-gray-800 rounded-full transition-colors">
+          <button onClick={onClose} className={buttonVariants({ variant: 'modal' })}>
             <X className="w-5 h-5 text-gray-500" />
           </button>
         </div>
@@ -107,22 +123,33 @@ export const PlayerModal = ({ player, matches, onClose }) => {
 
           {/* Primary Grid */}
           <div className="grid grid-cols-2 gap-4">
-             <div className="bg-indigo-50 dark:bg-indigo-900/20 p-3 rounded-xl text-center">
-                <div className="text-xs text-gray-500 dark:text-indigo-300 mb-1 uppercase font-semibold">Win Rate</div>
-                <div className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">{stats.winRate}%</div>
-             </div>
-             <div className="bg-orange-50 dark:bg-orange-900/20 p-3 rounded-xl text-center">
-                <div className="text-xs text-gray-500 dark:text-orange-300 mb-1 uppercase font-semibold flex justify-center items-center gap-1"><Flame className="w-3 h-3" /> Cur. Streak</div>
-                <div className={`text-2xl font-bold ${stats.streakType === 'W' ? 'text-orange-500' : 'text-gray-400'}`}>{stats.streak}</div>
-             </div>
-             <div className="bg-gray-50 dark:bg-gray-700/30 p-3 rounded-xl text-center">
-                <div className="text-xs text-gray-500 dark:text-gray-400 mb-1 uppercase font-semibold flex justify-center items-center gap-1"><TrendingUp className="w-3 h-3" /> PPG</div>
-                <div className="text-xl font-bold text-gray-800 dark:text-gray-200">{stats.ppg}</div>
-             </div>
-             <div className="bg-gray-50 dark:bg-gray-700/30 p-3 rounded-xl text-center">
-                <div className="text-xs text-gray-500 dark:text-gray-400 mb-1 uppercase font-semibold flex justify-center items-center gap-1"><Shield className="w-3 h-3" /> Def Rtg</div>
-                <div className="text-xl font-bold text-gray-800 dark:text-gray-200">{stats.papg}</div>
-             </div>
+            <div className={statCardVariants({ variant: 'primary' })}>
+              <div className={statLabelVariants({ variant: 'primary' })}>Win Rate</div>
+              <div className={statValueVariants({ variant: 'primary' })}>{stats.winRate}%</div>
+            </div>
+            <div className={statCardVariants({ variant: 'accent' })}>
+              <div className={cn(statLabelVariants({ variant: 'accent' }), 'flex justify-center items-center gap-1')}>
+                <Flame className="w-3 h-3" /> Cur. Streak
+              </div>
+              <div className={cn(
+                statValueVariants(),
+                stats.streakType === 'W' ? 'text-orange-500' : 'text-gray-400'
+              )}>
+                {stats.streak}
+              </div>
+            </div>
+            <div className={statCardVariants()}>
+              <div className={cn(statLabelVariants(), 'flex justify-center items-center gap-1')}>
+                <TrendingUp className="w-3 h-3" /> PPG
+              </div>
+              <div className={statValueVariants({ size: 'md' })}>{stats.ppg}</div>
+            </div>
+            <div className={statCardVariants()}>
+              <div className={cn(statLabelVariants(), 'flex justify-center items-center gap-1')}>
+                <Shield className="w-3 h-3" /> Def Rtg
+              </div>
+              <div className={statValueVariants({ size: 'md' })}>{stats.papg}</div>
+            </div>
           </div>
 
           {/* Form History */}
@@ -130,14 +157,18 @@ export const PlayerModal = ({ player, matches, onClose }) => {
             <h4 className="text-xs font-bold text-gray-400 uppercase mb-2">Last 5 Games</h4>
             <div className="flex gap-2">
               {stats.last5.map((res, i) => (
-                <div key={i} className={`h-8 flex-1 rounded-md flex items-center justify-center text-xs font-bold text-white ${
-                  res === 'W' ? 'bg-green-500' : res === 'D' ? 'bg-gray-400' : 'bg-red-400'
-                }`}>
+                <div
+                  key={i}
+                  className={badgeVariants({
+                    variant: res === 'W' ? 'win' : res === 'D' ? 'draw' : 'loss',
+                    rounded: 'md'
+                  })}
+                >
                   {res}
                 </div>
               ))}
               {[...Array(5 - stats.last5.length)].map((_, i) => (
-                 <div key={`e-${i}`} className="h-8 flex-1 rounded-md bg-gray-100 dark:bg-gray-700"></div>
+                <div key={`e-${i}`} className={badgeVariants({ variant: 'empty', rounded: 'md' })}></div>
               ))}
             </div>
           </div>

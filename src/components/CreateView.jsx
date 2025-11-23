@@ -2,6 +2,16 @@ import React, { useState } from 'react';
 import { Trophy, Users, X } from 'lucide-react';
 import { ThemeToggle } from '../contexts/ThemeContext';
 import { BackendService } from '../services/BackendService';
+import { cn } from '../lib/utils';
+import {
+  cardVariants,
+  buttonVariants,
+  inputVariants,
+  badgeVariants,
+  labelVariants,
+  headingVariants,
+  descriptionVariants
+} from '../lib/variants';
 
 export const CreateView = ({ onCreate }) => {
   const [players, setPlayers] = useState(["Alice", "Bob", "Charlie", "Dave", "Eve"]);
@@ -43,21 +53,23 @@ export const CreateView = ({ onCreate }) => {
         <div className="w-16 h-16 bg-indigo-600 rounded-2xl mx-auto flex items-center justify-center shadow-lg shadow-indigo-200 dark:shadow-none">
           <Trophy className="text-white w-8 h-8" />
         </div>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">2v2 Mix Ups</h1>
-        <p className="text-gray-500 dark:text-gray-400">Casual tournament manager for 2v2 Games</p>
+        <h1 className={headingVariants()}>2v2 Mix Ups</h1>
+        <p className={descriptionVariants()}>Casual tournament manager for 2v2 Games</p>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 space-y-4">
+      <div className={cn(cardVariants(), 'space-y-4')}>
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center"><Users className="w-4 h-4 mr-2" /> Players</label>
-          <div className="flex flex-wrap gap-2 p-3 border rounded-lg bg-transparent dark:bg-gray-700 dark:border-gray-600 min-h-[42px]">
+          <label className={cn(labelVariants({ withIcon: true }))}>
+            <Users className="w-4 h-4 mr-2" /> Players
+          </label>
+          <div className={inputVariants({ variant: 'container' })}>
             {players.map(player => (
-              <span key={player} className="inline-flex items-center gap-1 px-3 py-1 bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 rounded-full text-sm font-medium">
+              <span key={player} className={badgeVariants()}>
                 {player}
                 <button
                   type="button"
                   onClick={() => handleRemovePlayer(player)}
-                  className="hover:bg-indigo-200 dark:hover:bg-indigo-800 rounded-full p-0.5 transition-colors"
+                  className={buttonVariants({ variant: 'remove' })}
                 >
                   <X className="w-3 h-3" />
                 </button>
@@ -69,30 +81,74 @@ export const CreateView = ({ onCreate }) => {
             value={currentInput}
             onChange={e => setCurrentInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            className="w-full mt-2 p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm bg-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            className={cn(inputVariants({ fullWidth: true }), 'mt-2')}
             placeholder="Type name and press Enter..."
             autoComplete="off"
           />
-          <p className="text-xs text-gray-400 mt-1 text-right">{players.length} players</p>
+          <p className={cn(descriptionVariants({ variant: 'muted' }), 'mt-1 text-right')}>
+            {players.length} players
+          </p>
         </div>
 
         <div className="grid grid-cols-2 gap-4 pt-2">
           <div>
-            <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-2">Scoring</label>
+            <label className={labelVariants({ variant: 'section' })}>Scoring</label>
             <div className="flex flex-col space-y-2">
-              <button onClick={() => setConfig({ ...config, scoringMode: 'POINTS' })} className={`px-3 py-2 rounded-lg text-sm border text-left transition-all ${config.scoringMode === 'POINTS' ? 'bg-indigo-50 dark:bg-indigo-900/30 border-indigo-500 text-indigo-700 dark:text-indigo-300' : 'hover:bg-gray-50 dark:hover:bg-gray-700 dark:border-gray-600 dark:text-gray-300'}`}>Points</button>
-              <button onClick={() => setConfig({ ...config, scoringMode: 'WIN_LOSS' })} className={`px-3 py-2 rounded-lg text-sm border text-left transition-all ${config.scoringMode === 'WIN_LOSS' ? 'bg-indigo-50 dark:bg-indigo-900/30 border-indigo-500 text-indigo-700 dark:text-indigo-300' : 'hover:bg-gray-50 dark:hover:bg-gray-700 dark:border-gray-600 dark:text-gray-300'}`}>Win/Loss</button>
+              <button
+                onClick={() => setConfig({ ...config, scoringMode: 'POINTS' })}
+                className={buttonVariants({
+                  variant: 'config',
+                  active: config.scoringMode === 'POINTS'
+                })}
+              >
+                Points
+              </button>
+              <button
+                onClick={() => setConfig({ ...config, scoringMode: 'WIN_LOSS' })}
+                className={buttonVariants({
+                  variant: 'config',
+                  active: config.scoringMode === 'WIN_LOSS'
+                })}
+              >
+                Win/Loss
+              </button>
             </div>
           </div>
           <div>
-            <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-2">Format</label>
+            <label className={labelVariants({ variant: 'section' })}>Format</label>
             <div className="flex flex-col space-y-2">
-              <button onClick={() => setConfig({ ...config, scheduleMode: 'ROTATION' })} className={`px-3 py-2 rounded-lg text-sm border text-left transition-all ${config.scheduleMode === 'ROTATION' ? 'bg-indigo-50 dark:bg-indigo-900/30 border-indigo-500 text-indigo-700 dark:text-indigo-300' : 'hover:bg-gray-50 dark:hover:bg-gray-700 dark:border-gray-600 dark:text-gray-300'}`}>Partner Rotate</button>
-              <button disabled className="px-3 py-2 rounded-lg text-sm border text-left text-gray-300 dark:text-gray-600 dark:border-gray-700 cursor-not-allowed bg-gray-50 dark:bg-gray-800">League (Soon)</button>
+              <button
+                onClick={() => setConfig({ ...config, scheduleMode: 'ROTATION' })}
+                className={buttonVariants({
+                  variant: 'config',
+                  active: config.scheduleMode === 'ROTATION'
+                })}
+              >
+                Partner Rotate
+              </button>
+              <button
+                disabled
+                className={buttonVariants({
+                  variant: 'config',
+                  disabled: true
+                })}
+              >
+                League (Soon)
+              </button>
             </div>
           </div>
         </div>
-        <button onClick={handleCreate} disabled={loading} className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-semibold shadow-lg shadow-indigo-200 dark:shadow-none transition-all flex items-center justify-center mt-4">{loading ? <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" /> : 'Generate Schedule'}</button>
+        <button
+          onClick={handleCreate}
+          disabled={loading}
+          className={cn(buttonVariants({ size: 'lg' }), 'flex items-center justify-center mt-4')}
+        >
+          {loading ? (
+            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+          ) : (
+            'Generate Schedule'
+          )}
+        </button>
       </div>
     </div>
   );
