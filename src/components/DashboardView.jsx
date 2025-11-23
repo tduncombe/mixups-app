@@ -2,56 +2,49 @@ import React, { useState } from 'react';
 import { ArrowLeft, Share2, CheckCircle2, AlertCircle, Calendar, Medal } from 'lucide-react';
 import { ThemeToggle } from '../contexts/ThemeContext';
 import { useTournament } from '../hooks/useTournament';
+import { BackendService } from '../services/BackendService';
 import { Spinner } from './Spinner';
 import { MatchCard } from './MatchCard';
 import { Leaderboard } from './Leaderboard';
 import { PlayerModal } from './PlayerModal';
 
-export const DashboardView = ({ tournamentId, onBack }) => {
-  const { tournament, matches, loading, error } = useTournament(tournamentId);
+export const DashboardView = ({ tournamentId, onBack, isRemoteMode }) => {
+  const { tournament, matches, loading, error, isRemote } = useTournament(tournamentId, isRemoteMode);
   const [activeTab, setActiveTab] = useState('matches');
   const [selectedPlayer, setSelectedPlayer] = useState(null);
   const [showCopied, setShowCopied] = useState(false);
+  const [isSharing, setIsSharing] = useState(false);
 
   if (loading) return <div className="h-screen flex items-center justify-center"><Spinner /></div>;
   if (error || !tournament) return <div className="text-center p-8"><AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" /><h2 className="text-xl font-bold dark:text-white">Not Found</h2><button onClick={onBack} className="mt-4 text-indigo-600">Go Home</button></div>;
 
-  const handleCopy = () => {
-    const url = window.location.href;
+  const handleCopy = async () => {
+    if (isSharing) return;
+    setIsSharing(true);
 
-    // Fallback for iframe environments where clipboard API might be restricted
-    const tryLegacyCopy = (text) => {
-        try {
-            const textArea = document.createElement("textarea");
-            textArea.value = text;
-            textArea.style.position = "fixed";
-            textArea.style.left = "-9999px";
-            textArea.style.top = "0";
-            document.body.appendChild(textArea);
-            textArea.focus();
-            textArea.select();
-            const successful = document.execCommand('copy');
-            document.body.removeChild(textArea);
-            if (successful) {
-                setShowCopied(true);
-                setTimeout(() => setShowCopied(false), 2000);
-            } else {
-                alert("Could not auto-copy. Please copy the URL from your browser address bar manually.");
-            }
-        } catch (err) {
-            alert("Could not auto-copy. Please copy the URL from your browser address bar manually.");
+    try {
+        // 1. If not already remote, upload to Supabase
+        if (!isRemote) {
+            await BackendService.shareTournament(tournamentId);
         }
-    };
 
-    if (navigator.clipboard && window.isSecureContext) {
-        navigator.clipboard.writeText(url)
-            .then(() => {
-                setShowCopied(true);
-                setTimeout(() => setShowCopied(false), 2000);
-            })
-            .catch(() => tryLegacyCopy(url));
-    } else {
-        tryLegacyCopy(url);
+        // 2. Create the shareable link (append query param)
+        const url = new URL(window.location.href);
+        url.searchParams.set('t', tournamentId);
+
+        // 3. Copy to clipboard
+        await navigator.clipboard.writeText(url.toString());
+        setShowCopied(true);
+        setTimeout(() => setShowCopied(false), 2000);
+
+        // 4. Force a reload to switch to "Remote Mode" immediately for the user
+        if (!isRemote) {
+            window.location.search = `?t=${tournamentId}`;
+        }
+    } catch (err) {
+        alert("Failed to share: " + err.message);
+    } finally {
+        setIsSharing(false);
     }
   };
 
@@ -68,8 +61,8 @@ export const DashboardView = ({ tournamentId, onBack }) => {
           </div>
           <div className="flex items-center -mr-2">
              <ThemeToggle />
-             <button onClick={handleCopy} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full relative ml-1">
-              {showCopied ? <CheckCircle2 className="w-5 h-5 text-green-600" /> : <Share2 className="w-5 h-5 text-gray-600 dark:text-gray-300" />}
+             <button onClick={handleCopy} disabled={isSharing} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full relative ml-1 disabled:opacity-50">
+              {isSharing ? <Spinner /> : (showCopied ? <CheckCircle2 className="w-5 h-5 text-green-600" /> : <Share2 className="w-5 h-5 text-gray-600 dark:text-gray-300" />)}
             </button>
           </div>
         </div>
@@ -87,7 +80,7 @@ export const DashboardView = ({ tournamentId, onBack }) => {
         {activeTab === 'matches' ? (
           <div className="space-y-2">
             {matches.length === 0 && <div className="text-center py-10 text-gray-400">No matches generated.</div>}
-            {matches.map(m => <MatchCard key={m.id} match={m} config={tournament.config} />)}
+            {matches.map(m => <MatchCard key={m.id} match={m} config={tournament.config} isRemote={isRemote} />)}
           </div>
         ) : (
           <Leaderboard

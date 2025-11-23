@@ -9,7 +9,7 @@ import {
   avatarVariants
 } from '../lib/variants';
 
-export const MatchCard = ({ match, config }) => {
+export const MatchCard = ({ match, config, isRemote }) => {
   const [localScores, setLocalScores] = useState(match.scores);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -32,7 +32,7 @@ export const MatchCard = ({ match, config }) => {
           else if (localScores.team2 > localScores.team1) winner = 'team2';
           else winner = config.allowDraws ? 'draw' : null;
         }
-        await BackendService.updateMatch(match.id, { scores: localScores, winner, isComplete });
+        await BackendService.updateMatch(match.id, { scores: localScores, winner, isComplete }, isRemote);
         setIsSaving(false);
       }, 800);
       return () => clearTimeout(timer);
@@ -41,7 +41,7 @@ export const MatchCard = ({ match, config }) => {
 
   const handleWinClick = async (winningTeam) => {
     setIsSaving(true);
-    await BackendService.updateMatch(match.id, { winner: winningTeam, isComplete: true, scores: { team1: 0, team2: 0 } });
+    await BackendService.updateMatch(match.id, { winner: winningTeam, isComplete: true, scores: { team1: 0, team2: 0 } }, isRemote);
     setIsSaving(false);
   };
 
