@@ -1,18 +1,37 @@
 import React, { useState } from 'react';
-import { Trophy, Users } from 'lucide-react';
+import { Trophy, Users, X } from 'lucide-react';
 import { ThemeToggle } from '../contexts/ThemeContext';
 import { BackendService } from '../services/BackendService';
 
 export const CreateView = ({ onCreate }) => {
-  const [players, setPlayers] = useState("Alice\nBob\nCharlie\nDave\nEve");
+  const [players, setPlayers] = useState(["Alice", "Bob", "Charlie", "Dave", "Eve"]);
+  const [currentInput, setCurrentInput] = useState("");
   const [config, setConfig] = useState({ scoringMode: 'POINTS', allowDraws: false, scheduleMode: 'ROTATION' });
   const [loading, setLoading] = useState(false);
 
+  const handleAddPlayer = (e) => {
+    e.preventDefault();
+    const trimmed = currentInput.trim();
+    if (trimmed && !players.includes(trimmed)) {
+      setPlayers([...players, trimmed]);
+      setCurrentInput("");
+    }
+  };
+
+  const handleRemovePlayer = (playerToRemove) => {
+    setPlayers(players.filter(p => p !== playerToRemove));
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      handleAddPlayer(e);
+    }
+  };
+
   const handleCreate = async () => {
-    const playerList = players.split('\n').map(p => p.trim()).filter(p => p.length > 0);
-    if (playerList.length < 4) { alert("Need at least 4 players!"); return; }
+    if (players.length < 4) { alert("Need at least 4 players!"); return; }
     setLoading(true);
-    const id = await BackendService.createTournament(playerList, config);
+    const id = await BackendService.createTournament(players, config);
     setLoading(false);
     onCreate(id);
   };
@@ -31,8 +50,30 @@ export const CreateView = ({ onCreate }) => {
       <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 space-y-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center"><Users className="w-4 h-4 mr-2" /> Players</label>
-          <textarea value={players} onChange={e => setPlayers(e.target.value)} className="w-full h-32 p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm bg-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="Enter names..." />
-          <p className="text-xs text-gray-400 mt-1 text-right">{players.split('\n').filter(p=>p.trim()).length} players</p>
+          <div className="flex flex-wrap gap-2 p-3 border rounded-lg bg-transparent dark:bg-gray-700 dark:border-gray-600 min-h-[42px]">
+            {players.map(player => (
+              <span key={player} className="inline-flex items-center gap-1 px-3 py-1 bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 rounded-full text-sm font-medium">
+                {player}
+                <button
+                  type="button"
+                  onClick={() => handleRemovePlayer(player)}
+                  className="hover:bg-indigo-200 dark:hover:bg-indigo-800 rounded-full p-0.5 transition-colors"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </span>
+            ))}
+          </div>
+          <input
+            type="text"
+            value={currentInput}
+            onChange={e => setCurrentInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            className="w-full mt-2 p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm bg-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            placeholder="Type name and press Enter..."
+            autoComplete="off"
+          />
+          <p className="text-xs text-gray-400 mt-1 text-right">{players.length} players</p>
         </div>
 
         <div className="grid grid-cols-2 gap-4 pt-2">
