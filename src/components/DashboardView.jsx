@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Share2, CheckCircle2, AlertCircle, Calendar, Medal } from 'lucide-react';
+import { ArrowLeft, Share2, CheckCircle2, AlertCircle, Calendar, Medal, Check } from 'lucide-react';
 import { ThemeToggle } from '../contexts/ThemeContext';
 import { useTournament } from '../hooks/useTournament';
 import { BackendService } from '../services/BackendService';
@@ -8,12 +8,37 @@ import { MatchCard } from './MatchCard';
 import { Leaderboard } from './Leaderboard';
 import { PlayerModal } from './PlayerModal';
 
+const Toast = ({ message, show }) => {
+  if (!show) return null;
+
+  return (
+    <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 animate-slideDown">
+      <div className="bg-green-600 text-white px-6 py-3 rounded-full shadow-lg flex items-center gap-2 font-medium">
+        <Check className="w-5 h-5" />
+        {message}
+      </div>
+    </div>
+  );
+};
+
+const ShareAnimation = ({ show }) => {
+  if (!show) return null;
+
+  return (
+    <div className="fixed inset-0 z-40 pointer-events-none">
+      <div className="absolute inset-0 animate-ripple bg-gradient-radial from-indigo-500/20 via-purple-500/10 to-transparent" />
+    </div>
+  );
+};
+
 export const DashboardView = ({ tournamentId, onBack, isRemoteMode }) => {
   const { tournament, matches, loading, error, isRemote } = useTournament(tournamentId, isRemoteMode);
   const [activeTab, setActiveTab] = useState('matches');
   const [selectedPlayer, setSelectedPlayer] = useState(null);
   const [showCopied, setShowCopied] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+  const [showAnimation, setShowAnimation] = useState(false);
 
   if (loading) return <div className="h-screen flex items-center justify-center"><Spinner /></div>;
   if (error || !tournament) return <div className="text-center p-8"><AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" /><h2 className="text-xl font-bold dark:text-white">Not Found</h2><button onClick={onBack} className="mt-4 text-indigo-600">Go Home</button></div>;
@@ -34,10 +59,19 @@ export const DashboardView = ({ tournamentId, onBack, isRemoteMode }) => {
 
         // 3. Copy to clipboard
         await navigator.clipboard.writeText(url.toString());
-        setShowCopied(true);
-        setTimeout(() => setShowCopied(false), 2000);
 
-        // 4. Force a reload to switch to "Remote Mode" immediately for the user
+        // 4. Show success feedback
+        setShowCopied(true);
+        setShowAnimation(true);
+        setShowToast(true);
+
+        setTimeout(() => {
+          setShowCopied(false);
+          setShowAnimation(false);
+          setShowToast(false);
+        }, 2000);
+
+        // 5. Force a reload to switch to "Remote Mode" immediately for the user
         if (!isRemote) {
             window.location.search = `?t=${tournamentId}`;
         }
@@ -98,6 +132,12 @@ export const DashboardView = ({ tournamentId, onBack, isRemoteMode }) => {
         matches={matches}
         onClose={() => setSelectedPlayer(null)}
       />
+
+      {/* Toast Notification */}
+      <Toast message="Copied link to clipboard!" show={showToast} />
+
+      {/* Share Animation */}
+      <ShareAnimation show={showAnimation} />
     </div>
   );
 };
